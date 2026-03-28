@@ -903,17 +903,29 @@ const CFG = {
   NEWS_TTL:  900_000,
 };
 
+/* ── GOLD IMAGE POOL (Wikimedia Commons, public domain) ── */
+const GOLD_IMG_POOL = [
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Gold_bullion_bars.jpg/640px-Gold_bullion_bars.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Gold_nugget_%28placer_gold%29.jpg/640px-Gold_nugget_%28placer_gold%29.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Gold_Bars.jpg/640px-Gold_Bars.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Gold_bullion_from_austria.jpg/640px-Gold_bullion_from_austria.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/GoldenBars.jpg/640px-GoldenBars.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/NSrpMining.jpg/640px-NSrpMining.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Gold-crystals.jpg/640px-Gold-crystals.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Gold_Price_Chart.svg/640px-Gold_Price_Chart.svg.png',
+];
+
 /* ── FALLBACK ARTICLES ── */
 const FALLBACKS = [
-  { title:'Gold Holds Above $3,000 as Dollar Weakens on Fed Pause Bets', description:'Spot gold remained firm above the $3,000 mark as traders scaled back expectations for near-term Federal Reserve rate hikes, pressuring the US dollar and boosting safe-haven demand.', url:'https://www.kitco.com', image:null, publishedAt:new Date(Date.now()-3600000).toISOString(), source:{name:'Kitco News'} },
-  { title:'Central Banks Added 1,136 Tonnes of Gold in 2025 — WGC Report', description:'World Gold Council data shows central banks globally continued aggressive gold accumulation in 2025, with emerging market institutions accounting for the bulk of purchases.', url:'https://www.gold.org', image:null, publishedAt:new Date(Date.now()-7200000).toISOString(), source:{name:'World Gold Council'} },
-  { title:'Geopolitical Tensions Push Investors Back Into Precious Metals', description:'Safe-haven demand surged this week as ongoing geopolitical uncertainty and trade war fears drove institutional investors back into gold, silver, and platinum positions.', url:'https://www.reuters.com', image:null, publishedAt:new Date(Date.now()-10800000).toISOString(), source:{name:'Reuters'} },
-  { title:'Gold Mining Output Falls for Third Consecutive Quarter', description:'Major producers reported declining output amid rising energy costs and ore grade challenges, a supply-side factor analysts say provides ongoing structural support to gold prices.', url:'https://www.mining.com', image:null, publishedAt:new Date(Date.now()-14400000).toISOString(), source:{name:'Mining.com'} },
-  { title:'ETF Gold Inflows Reach 18-Month High in February 2026', description:'Physically-backed gold ETFs recorded their strongest monthly inflows in 18 months, signalling renewed retail and institutional appetite for the precious metal.', url:'https://www.ft.com', image:null, publishedAt:new Date(Date.now()-18000000).toISOString(), source:{name:'Financial Times'} },
-  { title:"India's Gold Imports Jump 47% Year-on-Year Ahead of Wedding Season", description:"India ramped up gold imports sharply ahead of the peak festival and wedding season, reinforcing the country's role as one of the world's largest gold demand drivers.", url:'https://www.bloomberg.com', image:null, publishedAt:new Date(Date.now()-21600000).toISOString(), source:{name:'Bloomberg'} },
-  { title:'Silver Underperforms Gold — Is the Ratio Signalling a Shift?', description:'The gold-to-silver ratio climbed above 88 this week, a level historically followed by silver outperformance. Precious metals analysts debate whether the pattern holds in the current cycle.', url:'https://www.marketwatch.com', image:null, publishedAt:new Date(Date.now()-25200000).toISOString(), source:{name:'MarketWatch'} },
-  { title:'Inflation Data Keeps Gold Bulls in the Driving Seat', description:'Hotter-than-expected CPI readings in Europe and the US renewed inflation-hedging flows into gold, with technical analysts pointing to $3,200 as the next key resistance level.', url:'https://www.investing.com', image:null, publishedAt:new Date(Date.now()-28800000).toISOString(), source:{name:'Investing.com'} },
-  { title:'Record Jewellery Demand From China Offsets Western ETF Selling', description:'Physical jewellery demand from China hit a decade-high in Q4 2025, helping absorb selling pressure from Western ETF redemptions and keeping the gold market broadly in balance.', url:'https://www.spglobal.com', image:null, publishedAt:new Date(Date.now()-32400000).toISOString(), source:{name:'S&P Global'} },
+  { title:'Gold Holds Above $3,000 as Dollar Weakens on Fed Pause Bets', description:'Spot gold remained firm above the $3,000 mark as traders scaled back expectations for near-term Federal Reserve rate hikes, pressuring the US dollar and boosting safe-haven demand.', url:'https://www.kitco.com', image:GOLD_IMG_POOL[0], publishedAt:new Date(Date.now()-3600000).toISOString(), source:{name:'Kitco News'} },
+  { title:'Central Banks Added 1,136 Tonnes of Gold in 2025 — WGC Report', description:'World Gold Council data shows central banks globally continued aggressive gold accumulation in 2025, with emerging market institutions accounting for the bulk of purchases.', url:'https://www.gold.org', image:GOLD_IMG_POOL[1], publishedAt:new Date(Date.now()-7200000).toISOString(), source:{name:'World Gold Council'} },
+  { title:'Geopolitical Tensions Push Investors Back Into Precious Metals', description:'Safe-haven demand surged this week as ongoing geopolitical uncertainty and trade war fears drove institutional investors back into gold, silver, and platinum positions.', url:'https://www.reuters.com', image:GOLD_IMG_POOL[2], publishedAt:new Date(Date.now()-10800000).toISOString(), source:{name:'Reuters'} },
+  { title:'Gold Mining Output Falls for Third Consecutive Quarter', description:'Major producers reported declining output amid rising energy costs and ore grade challenges, a supply-side factor analysts say provides ongoing structural support to gold prices.', url:'https://www.mining.com', image:GOLD_IMG_POOL[3], publishedAt:new Date(Date.now()-14400000).toISOString(), source:{name:'Mining.com'} },
+  { title:'ETF Gold Inflows Reach 18-Month High in February 2026', description:'Physically-backed gold ETFs recorded their strongest monthly inflows in 18 months, signalling renewed retail and institutional appetite for the precious metal.', url:'https://www.ft.com', image:GOLD_IMG_POOL[4], publishedAt:new Date(Date.now()-18000000).toISOString(), source:{name:'Financial Times'} },
+  { title:"India's Gold Imports Jump 47% Year-on-Year Ahead of Wedding Season", description:"India ramped up gold imports sharply ahead of the peak festival and wedding season, reinforcing the country's role as one of the world's largest gold demand drivers.", url:'https://www.bloomberg.com', image:GOLD_IMG_POOL[5], publishedAt:new Date(Date.now()-21600000).toISOString(), source:{name:'Bloomberg'} },
+  { title:'Silver Underperforms Gold — Is the Ratio Signalling a Shift?', description:'The gold-to-silver ratio climbed above 88 this week, a level historically followed by silver outperformance. Precious metals analysts debate whether the pattern holds in the current cycle.', url:'https://www.marketwatch.com', image:GOLD_IMG_POOL[6], publishedAt:new Date(Date.now()-25200000).toISOString(), source:{name:'MarketWatch'} },
+  { title:'Inflation Data Keeps Gold Bulls in the Driving Seat', description:'Hotter-than-expected CPI readings in Europe and the US renewed inflation-hedging flows into gold, with technical analysts pointing to $3,200 as the next key resistance level.', url:'https://www.investing.com', image:GOLD_IMG_POOL[7], publishedAt:new Date(Date.now()-28800000).toISOString(), source:{name:'Investing.com'} },
+  { title:'Record Jewellery Demand From China Offsets Western ETF Selling', description:'Physical jewellery demand from China hit a decade-high in Q4 2025, helping absorb selling pressure from Western ETF redemptions and keeping the gold market broadly in balance.', url:'https://www.spglobal.com', image:GOLD_IMG_POOL[0], publishedAt:new Date(Date.now()-32400000).toISOString(), source:{name:'S&P Global'} },
 ];
 
 /* ── STATE ── */
@@ -950,6 +962,15 @@ function goldPh(sz=32) {
   return `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width=".9" opacity=".4">
     <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
   </svg>`;
+}
+
+/* ── ARTICLE IMAGE RESOLVER ──
+   Returns article's own image if available, otherwise picks a
+   deterministic gold image from the pool based on URL hash. */
+function getArticleImage(a) {
+  if (a.image) return a.image;
+  const hash = (a.url || a.title || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return GOLD_IMG_POOL[hash % GOLD_IMG_POOL.length];
 }
 
 /* ── GOLD PRICE FETCH (3-layer fallback) ──
@@ -991,7 +1012,18 @@ async function fetchGoldUSD() {
     throw new Error('No gold field');
   } catch(e) { console.warn('[Gold] metals.live proxy failed:', e.message); }
 
-  // ③ Hardcoded realistic fallback — page always shows a price
+  // ④ Yahoo Finance GC=F (gold futures) via proxy — free, no auth, real-time
+  try {
+    const raw  = await proxyFetch('https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=1d&range=1d', 10000);
+    const meta = JSON.parse(raw)?.chart?.result?.[0]?.meta;
+    if (meta?.regularMarketPrice) {
+      console.log('[Gold] Yahoo Finance OK:', meta.regularMarketPrice);
+      return { price: meta.regularMarketPrice, prev_close_price: meta.previousClose || meta.chartPreviousClose || meta.regularMarketPrice * 0.998 };
+    }
+    throw new Error('No price in response');
+  } catch(e) { console.warn('[Gold] Yahoo Finance failed:', e.message); }
+
+  // ⑤ Hardcoded realistic fallback — page always shows a price
   // Based on approximate market price; will show as static until API works
   const base = 3089.50 + (Math.random() - 0.5) * 15;
   console.warn('[Gold] Using hardcoded fallback price');
@@ -1132,6 +1164,43 @@ async function proxyFetch(url, timeout=8000) {
 }
 
 /* ── NEWS FETCH ── */
+
+/* The Guardian API — free "test" key, real articles, real thumbnail images */
+async function fetchGuardian() {
+  const url = 'https://content.guardianapis.com/search?q=gold+price+OR+%22precious+metals%22+OR+%22gold+market%22' +
+              '&api-key=test&show-fields=thumbnail,trailText,headline&page-size=20&order-by=newest&lang=en';
+
+  // 1. Direct (works on web server)
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(7000) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (d.response?.results?.length) {
+      console.log('[Guardian] direct OK —', d.response.results.length, 'articles');
+      return normaliseGuardian(d.response.results);
+    }
+    throw new Error('empty');
+  } catch(e) { console.warn('[Guardian] direct failed:', e.message); }
+
+  // 2. Via proxy (works from file://)
+  const raw = await proxyFetch(url, 10000);
+  const d   = JSON.parse(raw);
+  if (!d.response?.results?.length) throw new Error('Guardian proxy: empty');
+  console.log('[Guardian] proxy OK —', d.response.results.length, 'articles');
+  return normaliseGuardian(d.response.results);
+}
+
+function normaliseGuardian(results) {
+  return results.map(r => ({
+    title:       r.fields?.headline || r.webTitle || '',
+    description: (r.fields?.trailText || '').replace(/<[^>]+>/g, '').trim().slice(0, 240),
+    url:         r.webUrl || '#',
+    image:       r.fields?.thumbnail || null,
+    publishedAt: r.webPublicationDate || new Date().toISOString(),
+    source:      { name: 'The Guardian' },
+  }));
+}
+
 async function fetchGNews() {
   const q   = encodeURIComponent('gold OR "gold price" OR "precious metals"');
   const url = `${CFG.NEWS_URL}?q=${q}&lang=en&max=20&apikey=${CFG.NEWS_KEY}`;
@@ -1211,13 +1280,26 @@ function normaliseRss2json(items) {
 async function fetchNews() {
   if(S.newsAt && Date.now()-S.newsAt < CFG.NEWS_TTL) return;
   let articles=null;
-  try { articles=await fetchGNews(); console.log('[News] GNews OK'); }
-  catch(e){ console.warn('[News] GNews failed:',e.message); }
+
+  // 1. The Guardian — free test key, real articles with real thumbnails
+  try { articles=await fetchGuardian(); }
+  catch(e){ console.warn('[News] Guardian failed:',e.message); }
+
+  // 2. GNews
   if(!articles) {
-    try { articles=await fetchKitco(); console.log('[News] Kitco OK'); }
+    try { articles=await fetchGNews(); }
+    catch(e){ console.warn('[News] GNews failed:',e.message); }
+  }
+
+  // 3. Kitco RSS
+  if(!articles) {
+    try { articles=await fetchKitco(); }
     catch(e){ console.warn('[News] Kitco failed:',e.message); }
   }
-  if(!articles) { articles=FALLBACKS; console.warn('[News] Using placeholders'); }
+
+  // 4. Hardcoded fallbacks (always have gold images now)
+  if(!articles) { articles=FALLBACKS; console.warn('[News] Using hardcoded fallbacks'); }
+
   S.articles=articles;
   S.newsAt=Date.now();
   S.articles.forEach(a=>{ if(!S.readCounts[a.url]) S.readCounts[a.url]=Math.floor(Math.random()*4500)+500; });
@@ -1225,11 +1307,14 @@ async function fetchNews() {
 }
 
 /* ── RENDER ARTICLES ── */
-function thumbHTML(src, alt, phSz=28) {
-  if(src) return `<img src="${esc(src)}" alt="${esc(alt)}" loading="lazy"
-    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-    <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,#f5f0e0,#e8dfc0)">${goldPh(phSz)}</div>`;
-  return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f5f0e0,#e8dfc0)">${goldPh(phSz)}</div>`;
+// src is always resolved by getArticleImage() before calling this, so it's always a URL.
+// If the URL 404s, we fall over to the next gold pool image via onerror chain.
+function thumbHTML(src, alt) {
+  // Pick next pool image in case this one fails too
+  const hash = (src || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const fallbackSrc = GOLD_IMG_POOL[(hash + 1) % GOLD_IMG_POOL.length];
+  return `<img src="${esc(src)}" alt="${esc(alt)}" loading="lazy" style="width:100%;height:100%;object-fit:cover"
+    onerror="this.onerror=null;this.src='${esc(fallbackSrc)}'">`;
 }
 
 function renderFeatured(a) {
@@ -1243,10 +1328,7 @@ function renderFeatured(a) {
     <div class="widget-body" style="padding:0">
       <a href="${esc(a.url)}" target="_blank" rel="noopener" class="featured-card">
         <div class="feat-img-wrap">
-          ${a.image
-            ? `<img class="feat-img" src="${esc(a.image)}" alt="${esc(a.title)}" loading="eager" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-               <div class="feat-img-ph" style="display:none">${goldPh(64)}</div>`
-            : `<div class="feat-img-ph">${goldPh(64)}</div>`}
+          ${(()=>{const img=getArticleImage(a);const fb=GOLD_IMG_POOL[(img.split('').reduce((a,c)=>a+c.charCodeAt(0),0)+1)%GOLD_IMG_POOL.length];return `<img class="feat-img" src="${esc(img)}" alt="${esc(a.title)}" loading="eager" onerror="this.onerror=null;this.src='${esc(fb)}'">`;})()
           <div class="feat-tag"><span class="live-dot" style="background:#111"></span>Featured</div>
         </div>
         <div class="feat-body">
@@ -1268,7 +1350,7 @@ function mrCardHTML(a) {
   const isNew=(Date.now()-new Date(a.publishedAt))<7200000;
   return `
     <a href="${esc(a.url)}" target="_blank" rel="noopener" class="mr-card">
-      <div class="mr-card-img">${thumbHTML(a.image,a.title,24)}</div>
+      <div class="mr-card-img">${thumbHTML(getArticleImage(a),a.title)}</div>
       <div class="mr-card-body">
         ${isNew?'<span style="display:inline-block;background:#16A34A;color:#fff;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:2px 7px;border-radius:3px;margin-bottom:4px">New</span>':''}
         <div class="mr-card-title">${esc(a.title)}</div>
@@ -1284,7 +1366,7 @@ function mrCardHTML(a) {
 function raItemHTML(a) {
   return `
     <a href="${esc(a.url)}" target="_blank" rel="noopener" class="ra-item">
-      <div class="ra-thumb">${thumbHTML(a.image,a.title,16)}</div>
+      <div class="ra-thumb">${thumbHTML(getArticleImage(a),a.title)}</div>
       <div class="ra-info">
         <div class="ra-title">${esc(a.title)}</div>
         <div class="ra-meta"><span class="ra-source">${esc(a.source?.name||'')}</span> · ${fmtDate(a.publishedAt)}</div>
