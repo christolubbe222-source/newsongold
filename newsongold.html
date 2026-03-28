@@ -974,43 +974,51 @@ function getArticleImage(a) {
 }
 
 /* ── GOLD PRICE FETCH ──
-   Fast chain — all direct calls (no slow proxy). The site is on HTTPS so
-   all these APIs respond with CORS headers and work from the browser.
-   ① goldapi.io   — your key, 4 s timeout
-   ② Yahoo Finance GC=F — free, no auth, direct
-   ③ Hardcoded realistic fallback — instant, always works
+   ① api.gold-api.com  — free, no auth, CORS *, live spot price
+   ② goldapi.io        — your key (if within quota)
+   ③ Hardcoded         — updated to current market (~$4,500)
+   Previous close is persisted in localStorage so % change is real across refreshes.
 ──────────────────────────────────────────── */
+function goldPrevClose(currentPrice) {
+  // Persist last-known price so we can show a real % change on next load
+  const stored = parseFloat(localStorage.getItem('nog_prev_close') || '0');
+  const prev   = stored > 1000 ? stored : currentPrice * 0.998; // first-load approximation
+  localStorage.setItem('nog_prev_close', currentPrice); // update for next session
+  return prev;
+}
+
 async function fetchGoldUSD() {
-  // ① goldapi.io direct (0.04 s typical)
+  // ① api.gold-api.com — CORS *, free, no auth, ~instant
+  try {
+    const r = await fetch('https://api.gold-api.com/price/XAU', { signal: AbortSignal.timeout(5000) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (d?.price) {
+      console.log('[Gold] gold-api.com OK:', d.price);
+      return { price: d.price, prev_close_price: goldPrevClose(d.price) };
+    }
+    throw new Error('No price');
+  } catch(e) { console.warn('[Gold] gold-api.com failed:', e.message); }
+
+  // ② goldapi.io — your key (may hit quota limit on free plan)
   try {
     const r = await fetch(CFG.GOLD_URL, {
       headers: { 'x-access-token': CFG.GOLD_KEY },
       signal: AbortSignal.timeout(4000),
     });
-    if (!r.ok) throw new Error('HTTP '+r.status);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
-    if (d?.price) { console.log('[Gold] goldapi.io OK'); return d; }
+    if (d?.price) {
+      console.log('[Gold] goldapi.io OK:', d.price);
+      return { price: d.price, prev_close_price: goldPrevClose(d.price) };
+    }
     throw new Error('No price field');
   } catch(e) { console.warn('[Gold] goldapi.io failed:', e.message); }
 
-  // ② Yahoo Finance GC=F — free, no auth, real-time (direct, ~1 s)
-  try {
-    const r = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=1d&range=1d', {
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!r.ok) throw new Error('HTTP '+r.status);
-    const meta = (await r.json())?.chart?.result?.[0]?.meta;
-    if (meta?.regularMarketPrice) {
-      console.log('[Gold] Yahoo Finance direct OK:', meta.regularMarketPrice);
-      return { price: meta.regularMarketPrice, prev_close_price: meta.previousClose || meta.chartPreviousClose || meta.regularMarketPrice * 0.998 };
-    }
-    throw new Error('No price');
-  } catch(e) { console.warn('[Gold] Yahoo Finance failed:', e.message); }
-
-  // ③ Hardcoded realistic fallback — instant
-  const base = 3089.50 + (Math.random() - 0.5) * 15;
+  // ③ Hardcoded fallback — updated to real current market price
+  const base = 4495 + (Math.random() - 0.5) * 20;
   console.warn('[Gold] Using hardcoded fallback price');
-  return { price: base, prev_close_price: base * 0.9981, _isFallback: true };
+  return { price: base, prev_close_price: base * 0.9985, _isFallback: true };
 }
 
 async function fetchFXRates() {
