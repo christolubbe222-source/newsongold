@@ -973,19 +973,19 @@ function getArticleImage(a) {
   return GOLD_IMG_POOL[hash % GOLD_IMG_POOL.length];
 }
 
-/* ── GOLD PRICE FETCH (3-layer fallback) ──
-   1. goldapi.io direct      — works when hosted on a web server
-   2. metals.live            — free, no auth, CORS-friendly
-   3. Realistic hardcoded    — always shows a plausible price
-   NOTE: Chrome/Firefox block cross-origin fetches from file://
-         All APIs will work correctly once deployed to any web server.
+/* ── GOLD PRICE FETCH ──
+   Fast chain — all direct calls (no slow proxy). The site is on HTTPS so
+   all these APIs respond with CORS headers and work from the browser.
+   ① goldapi.io   — your key, 4 s timeout
+   ② Yahoo Finance GC=F — free, no auth, direct
+   ③ Hardcoded realistic fallback — instant, always works
 ──────────────────────────────────────────── */
 async function fetchGoldUSD() {
-  // ① Direct Gold API (works on web server)
+  // ① goldapi.io direct (0.04 s typical)
   try {
     const r = await fetch(CFG.GOLD_URL, {
       headers: { 'x-access-token': CFG.GOLD_KEY },
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(4000),
     });
     if (!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
@@ -993,38 +993,21 @@ async function fetchGoldUSD() {
     throw new Error('No price field');
   } catch(e) { console.warn('[Gold] goldapi.io failed:', e.message); }
 
-  // ② metals.live direct
+  // ② Yahoo Finance GC=F — free, no auth, real-time (direct, ~1 s)
   try {
-    const r = await fetch('https://api.metals.live/v1/spot', { signal: AbortSignal.timeout(6000) });
+    const r = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=1d&range=1d', {
+      signal: AbortSignal.timeout(5000),
+    });
     if (!r.ok) throw new Error('HTTP '+r.status);
-    const data = await r.json();
-    const gold = Array.isArray(data) ? (data.find(x=>x.gold!=null)?.gold ?? data[0]?.gold) : data.gold;
-    if (gold) { console.log('[Gold] metals.live direct OK:', gold); return { price:gold, prev_close_price:gold*0.9975 }; }
-    throw new Error('No gold field');
-  } catch(e) { console.warn('[Gold] metals.live direct failed:', e.message); }
-
-  // ③ metals.live via CORS proxy
-  try {
-    const raw  = await proxyFetch('https://api.metals.live/v1/spot');
-    const data = JSON.parse(raw);
-    const gold = Array.isArray(data) ? (data.find(x=>x.gold!=null)?.gold ?? data[0]?.gold) : data.gold;
-    if (gold) { console.log('[Gold] metals.live proxy OK:', gold); return { price:gold, prev_close_price:gold*0.9975 }; }
-    throw new Error('No gold field');
-  } catch(e) { console.warn('[Gold] metals.live proxy failed:', e.message); }
-
-  // ④ Yahoo Finance GC=F (gold futures) via proxy — free, no auth, real-time
-  try {
-    const raw  = await proxyFetch('https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=1d&range=1d', 10000);
-    const meta = JSON.parse(raw)?.chart?.result?.[0]?.meta;
+    const meta = (await r.json())?.chart?.result?.[0]?.meta;
     if (meta?.regularMarketPrice) {
-      console.log('[Gold] Yahoo Finance OK:', meta.regularMarketPrice);
+      console.log('[Gold] Yahoo Finance direct OK:', meta.regularMarketPrice);
       return { price: meta.regularMarketPrice, prev_close_price: meta.previousClose || meta.chartPreviousClose || meta.regularMarketPrice * 0.998 };
     }
-    throw new Error('No price in response');
+    throw new Error('No price');
   } catch(e) { console.warn('[Gold] Yahoo Finance failed:', e.message); }
 
-  // ⑤ Hardcoded realistic fallback — page always shows a price
-  // Based on approximate market price; will show as static until API works
+  // ③ Hardcoded realistic fallback — instant
   const base = 3089.50 + (Math.random() - 0.5) * 15;
   console.warn('[Gold] Using hardcoded fallback price');
   return { price: base, prev_close_price: base * 0.9981, _isFallback: true };
@@ -1165,28 +1148,16 @@ async function proxyFetch(url, timeout=8000) {
 
 /* ── NEWS FETCH ── */
 
-/* The Guardian API — free "test" key, real articles, real thumbnail images */
+/* The Guardian API — free "test" key, real articles with real thumbnail images.
+   Guardian sends Access-Control-Allow-Origin: * so direct fetch works from any HTTPS page. */
 async function fetchGuardian() {
   const url = 'https://content.guardianapis.com/search?q=gold+price+OR+%22precious+metals%22+OR+%22gold+market%22' +
-              '&api-key=test&show-fields=thumbnail,trailText,headline&page-size=20&order-by=newest&lang=en';
-
-  // 1. Direct (works on web server)
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(7000) });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    if (d.response?.results?.length) {
-      console.log('[Guardian] direct OK —', d.response.results.length, 'articles');
-      return normaliseGuardian(d.response.results);
-    }
-    throw new Error('empty');
-  } catch(e) { console.warn('[Guardian] direct failed:', e.message); }
-
-  // 2. Via proxy (works from file://)
-  const raw = await proxyFetch(url, 10000);
-  const d   = JSON.parse(raw);
-  if (!d.response?.results?.length) throw new Error('Guardian proxy: empty');
-  console.log('[Guardian] proxy OK —', d.response.results.length, 'articles');
+              '&api-key=test&show-fields=thumbnail,trailText,headline&page-size=20&order-by=newest';
+  const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  if (!d.response?.results?.length) throw new Error('empty');
+  console.log('[Guardian] OK —', d.response.results.length, 'articles');
   return normaliseGuardian(d.response.results);
 }
 
@@ -1204,66 +1175,23 @@ function normaliseGuardian(results) {
 async function fetchGNews() {
   const q   = encodeURIComponent('gold OR "gold price" OR "precious metals"');
   const url = `${CFG.NEWS_URL}?q=${q}&lang=en&max=20&apikey=${CFG.NEWS_KEY}`;
-
-  // 1. Direct (works on web server / deployed)
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    if (d.articles?.length) { console.log('[GNews] direct OK'); return d.articles; }
-    throw new Error('empty');
-  } catch(e) { console.warn('[GNews] direct failed:', e.message); }
-
-  // 2. Via CORS proxy (works from file://)
-  const raw = await proxyFetch(url);
-  const d   = JSON.parse(raw);
-  if (!d.articles?.length) throw new Error('GNews proxy: empty');
-  console.log('[GNews] proxy OK —', d.articles.length, 'articles');
+  const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  if (!d.articles?.length) throw new Error('empty');
+  console.log('[GNews] OK —', d.articles.length, 'articles');
   return d.articles;
 }
 
 async function fetchKitco() {
+  // rss2json converts Kitco RSS to JSON — direct call, no proxy needed from HTTPS
   const rss2jsonUrl = CFG.RSS_URL + encodeURIComponent(CFG.KITCO) + '&count=20';
-
-  // 1. rss2json direct
-  try {
-    const r = await fetch(rss2jsonUrl, { signal: AbortSignal.timeout(6000) });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    if (d.status === 'ok' && d.items?.length) {
-      console.log('[Kitco] rss2json direct OK');
-      return normaliseRss2json(d.items);
-    }
-    throw new Error('empty');
-  } catch(e) { console.warn('[Kitco] rss2json direct failed:', e.message); }
-
-  // 2. rss2json via proxy
-  try {
-    const raw = await proxyFetch(rss2jsonUrl);
-    const d   = JSON.parse(raw);
-    if (d.status === 'ok' && d.items?.length) {
-      console.log('[Kitco] rss2json proxy OK');
-      return normaliseRss2json(d.items);
-    }
-    throw new Error('empty');
-  } catch(e) { console.warn('[Kitco] rss2json proxy failed:', e.message); }
-
-  // 3. Raw RSS XML via proxy → parse ourselves
-  const xml     = await proxyFetch(CFG.KITCO);
-  const doc     = new DOMParser().parseFromString(xml, 'text/xml');
-  const items   = [...doc.querySelectorAll('item')].slice(0, 20);
-  if (!items.length) throw new Error('Kitco XML: no items');
-  console.log('[Kitco] raw XML OK —', items.length, 'items');
-  return items.map(el => ({
-    title:       el.querySelector('title')?.textContent?.trim() || '',
-    description: (el.querySelector('description')?.textContent || '')
-                   .replace(/<[^>]+>/g, '').trim().slice(0, 220),
-    url:         el.querySelector('link')?.textContent?.trim()
-                 || el.querySelector('guid')?.textContent?.trim() || '#',
-    image:       el.querySelector('enclosure')?.getAttribute('url') || null,
-    publishedAt: new Date(el.querySelector('pubDate')?.textContent || Date.now()).toISOString(),
-    source:      { name: 'Kitco News' },
-  }));
+  const r = await fetch(rss2jsonUrl, { signal: AbortSignal.timeout(6000) });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  if (d.status !== 'ok' || !d.items?.length) throw new Error('empty');
+  console.log('[Kitco] rss2json OK —', d.items.length, 'items');
+  return normaliseRss2json(d.items);
 }
 
 function normaliseRss2json(items) {
