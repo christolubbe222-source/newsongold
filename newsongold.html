@@ -1246,6 +1246,8 @@ function thumbHTML(src, alt) {
 }
 
 function renderFeatured(a) {
+  const featImg = getArticleImage(a);
+  const featFb  = GOLD_IMG_POOL[(featImg.split('').reduce((x,c)=>x+c.charCodeAt(0),0)+1) % GOLD_IMG_POOL.length];
   const wrap=document.getElementById('featured-wrap');
   wrap.innerHTML=`
     <div class="widget-head">
@@ -1256,7 +1258,7 @@ function renderFeatured(a) {
     <div class="widget-body" style="padding:0">
       <a href="${esc(a.url)}" target="_blank" rel="noopener" class="featured-card">
         <div class="feat-img-wrap">
-          ${(()=>{const img=getArticleImage(a);const fb=GOLD_IMG_POOL[(img.split('').reduce((a,c)=>a+c.charCodeAt(0),0)+1)%GOLD_IMG_POOL.length];return `<img class="feat-img" src="${esc(img)}" alt="${esc(a.title)}" loading="eager" onerror="this.onerror=null;this.src='${esc(fb)}'">`;})()
+          <img class="feat-img" src="${esc(featImg)}" alt="${esc(a.title)}" loading="eager" onerror="this.onerror=null;this.src='${esc(featFb)}'">
           <div class="feat-tag"><span class="live-dot" style="background:#111"></span>Featured</div>
         </div>
         <div class="feat-body">
