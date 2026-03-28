@@ -972,23 +972,24 @@ async function fetchGoldUSD() {
     throw new Error('No price field');
   } catch(e) { console.warn('[Gold] goldapi.io failed:', e.message); }
 
-  // ② metals.live — free, no API key, CORS-friendly
+  // ② metals.live direct
   try {
-    const r = await fetch('https://api.metals.live/v1/spot', {
-      signal: AbortSignal.timeout(6000),
-    });
+    const r = await fetch('https://api.metals.live/v1/spot', { signal: AbortSignal.timeout(6000) });
     if (!r.ok) throw new Error('HTTP '+r.status);
     const data = await r.json();
-    // Response: [{gold: 3089.5, silver: ...}]
-    const gold = Array.isArray(data)
-      ? (data.find(x => x.gold != null)?.gold ?? data[0]?.gold)
-      : data.gold;
-    if (gold) {
-      console.log('[Gold] metals.live OK:', gold);
-      return { price: gold, prev_close_price: gold * 0.9975 };
-    }
+    const gold = Array.isArray(data) ? (data.find(x=>x.gold!=null)?.gold ?? data[0]?.gold) : data.gold;
+    if (gold) { console.log('[Gold] metals.live direct OK:', gold); return { price:gold, prev_close_price:gold*0.9975 }; }
     throw new Error('No gold field');
-  } catch(e) { console.warn('[Gold] metals.live failed:', e.message); }
+  } catch(e) { console.warn('[Gold] metals.live direct failed:', e.message); }
+
+  // ③ metals.live via CORS proxy
+  try {
+    const raw  = await proxyFetch('https://api.metals.live/v1/spot');
+    const data = JSON.parse(raw);
+    const gold = Array.isArray(data) ? (data.find(x=>x.gold!=null)?.gold ?? data[0]?.gold) : data.gold;
+    if (gold) { console.log('[Gold] metals.live proxy OK:', gold); return { price:gold, prev_close_price:gold*0.9975 }; }
+    throw new Error('No gold field');
+  } catch(e) { console.warn('[Gold] metals.live proxy failed:', e.message); }
 
   // ③ Hardcoded realistic fallback — page always shows a price
   // Based on approximate market price; will show as static until API works
@@ -1118,26 +1119,92 @@ function drawSparkline(currentPrice, data) {
   labs.forEach((l,i)=>ctx.fillText(l,toX(i),H-1));
 }
 
+/* ── CORS PROXY HELPER ──
+   allorigins.win wraps any URL and adds CORS headers,
+   making every fetch work from file://, localhost, and production. */
+async function proxyFetch(url, timeout=8000) {
+  const wrapped = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+  const r = await fetch(wrapped, { signal: AbortSignal.timeout(timeout) });
+  if (!r.ok) throw new Error('Proxy HTTP ' + r.status);
+  const wrapper = await r.json();
+  if (!wrapper.contents) throw new Error('Proxy returned empty contents');
+  return wrapper.contents; // raw string — caller parses
+}
+
 /* ── NEWS FETCH ── */
 async function fetchGNews() {
-  const q=encodeURIComponent('gold OR "gold price" OR "precious metals"');
-  const r=await fetch(`${CFG.NEWS_URL}?q=${q}&lang=en&max=20&apikey=${CFG.NEWS_KEY}`);
-  if(!r.ok) throw new Error('GNews HTTP '+r.status);
-  const d=await r.json();
-  if(!d.articles?.length) throw new Error('GNews empty');
+  const q   = encodeURIComponent('gold OR "gold price" OR "precious metals"');
+  const url = `${CFG.NEWS_URL}?q=${q}&lang=en&max=20&apikey=${CFG.NEWS_KEY}`;
+
+  // 1. Direct (works on web server / deployed)
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (d.articles?.length) { console.log('[GNews] direct OK'); return d.articles; }
+    throw new Error('empty');
+  } catch(e) { console.warn('[GNews] direct failed:', e.message); }
+
+  // 2. Via CORS proxy (works from file://)
+  const raw = await proxyFetch(url);
+  const d   = JSON.parse(raw);
+  if (!d.articles?.length) throw new Error('GNews proxy: empty');
+  console.log('[GNews] proxy OK —', d.articles.length, 'articles');
   return d.articles;
 }
 
 async function fetchKitco() {
-  const r=await fetch(CFG.RSS_URL+encodeURIComponent(CFG.KITCO)+'&count=20');
-  if(!r.ok) throw new Error('RSS HTTP '+r.status);
-  const d=await r.json();
-  if(d.status!=='ok'||!d.items?.length) throw new Error('RSS empty');
-  return d.items.map(x=>({
-    title:x.title,
-    description:(x.description||x.content||'').replace(/<[^>]+>/g,'').trim().slice(0,220),
-    url:x.link, image:x.enclosure?.link||x.thumbnail||null,
-    publishedAt:x.pubDate, source:{name:'Kitco News'}
+  const rss2jsonUrl = CFG.RSS_URL + encodeURIComponent(CFG.KITCO) + '&count=20';
+
+  // 1. rss2json direct
+  try {
+    const r = await fetch(rss2jsonUrl, { signal: AbortSignal.timeout(6000) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (d.status === 'ok' && d.items?.length) {
+      console.log('[Kitco] rss2json direct OK');
+      return normaliseRss2json(d.items);
+    }
+    throw new Error('empty');
+  } catch(e) { console.warn('[Kitco] rss2json direct failed:', e.message); }
+
+  // 2. rss2json via proxy
+  try {
+    const raw = await proxyFetch(rss2jsonUrl);
+    const d   = JSON.parse(raw);
+    if (d.status === 'ok' && d.items?.length) {
+      console.log('[Kitco] rss2json proxy OK');
+      return normaliseRss2json(d.items);
+    }
+    throw new Error('empty');
+  } catch(e) { console.warn('[Kitco] rss2json proxy failed:', e.message); }
+
+  // 3. Raw RSS XML via proxy → parse ourselves
+  const xml     = await proxyFetch(CFG.KITCO);
+  const doc     = new DOMParser().parseFromString(xml, 'text/xml');
+  const items   = [...doc.querySelectorAll('item')].slice(0, 20);
+  if (!items.length) throw new Error('Kitco XML: no items');
+  console.log('[Kitco] raw XML OK —', items.length, 'items');
+  return items.map(el => ({
+    title:       el.querySelector('title')?.textContent?.trim() || '',
+    description: (el.querySelector('description')?.textContent || '')
+                   .replace(/<[^>]+>/g, '').trim().slice(0, 220),
+    url:         el.querySelector('link')?.textContent?.trim()
+                 || el.querySelector('guid')?.textContent?.trim() || '#',
+    image:       el.querySelector('enclosure')?.getAttribute('url') || null,
+    publishedAt: new Date(el.querySelector('pubDate')?.textContent || Date.now()).toISOString(),
+    source:      { name: 'Kitco News' },
+  }));
+}
+
+function normaliseRss2json(items) {
+  return items.map(x => ({
+    title:       x.title,
+    description: (x.description || x.content || '').replace(/<[^>]+>/g, '').trim().slice(0, 220),
+    url:         x.link,
+    image:       x.enclosure?.link || x.thumbnail || null,
+    publishedAt: x.pubDate,
+    source:      { name: 'Kitco News' },
   }));
 }
 
