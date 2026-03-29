@@ -426,7 +426,7 @@
   }
   .ad-h   { height: 90px; }
   .ad-sq  { height: 260px; }
-  .ad-sq2 { height: 220px; }
+  .ad-sq2 { height: 220px; width: 100%; }
 
   /* ══════════════════════════════════════
      SIDEBAR: SEARCH
@@ -569,6 +569,122 @@
   .cat-item:hover { color: var(--gold-dk); }
   .cat-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
   .cat-count { margin-left: auto; font-family: var(--fm); font-size: 10px; color: #ccc; }
+
+  /* ══════════════════════════════════════
+     FEATURED EDITORIAL
+  ══════════════════════════════════════ */
+  .editorial {
+    background: #111;
+    border-radius: var(--r);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 60% 40%;
+    min-height: 220px;
+    box-shadow: var(--shm);
+  }
+  .editorial-body {
+    padding: 28px 28px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+  .editorial-kicker {
+    font-family: var(--fm);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+  }
+  .editorial-title {
+    font-family: var(--fh);
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.25;
+  }
+  .editorial-text {
+    font-size: 13.5px;
+    color: #aaa;
+    line-height: 1.7;
+  }
+  .editorial-byline {
+    font-family: var(--fm);
+    font-size: 10.5px;
+    color: #555;
+    margin-top: 4px;
+  }
+  .editorial-img-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+  .editorial-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(.85);
+  }
+  .editorial-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #111 0%, transparent 40%);
+    pointer-events: none;
+  }
+  @media (max-width: 600px) {
+    .editorial { grid-template-columns: 1fr; }
+    .editorial-img-wrap { aspect-ratio: 16/7; }
+  }
+
+  /* ══════════════════════════════════════
+     LATEST NEWS LIST
+  ══════════════════════════════════════ */
+  .ln-list {
+    padding: 4px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .ln-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.45;
+    animation: fadeIn .3s ease both;
+  }
+  .ln-item:last-child { border-bottom: none; }
+  .ln-bullet {
+    color: var(--gold);
+    font-size: 15px;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .ln-headline {
+    flex: 1;
+    font-weight: 600;
+    color: var(--text-1);
+    transition: color var(--ease);
+  }
+  .ln-item:hover .ln-headline { color: var(--gold-dk); }
+  .ln-meta {
+    white-space: nowrap;
+    font-family: var(--fm);
+    font-size: 10px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .ln-time {
+    font-family: var(--fm);
+    font-size: 10px;
+    color: var(--text-2);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 
   /* ══════════════════════════════════════
      LOADING STATE
@@ -732,6 +848,59 @@
       <div class="ad-slot ad-h">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d0d0d0" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
         <span>Google AdSense — 728×90</span>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           FEATURED EDITORIAL
+           ▸ CLIENT: Edit the text below daily.
+             Change the kicker, title, paragraphs, byline and image src.
+             The image should ideally be 800×500px or similar landscape ratio.
+      ══════════════════════════════════════════ -->
+      <div class="widget">
+        <div class="widget-head">
+          <div class="widget-bar gold"></div>
+          <span class="widget-title">Editor's Note</span>
+        </div>
+        <div class="editorial">
+          <div class="editorial-body">
+            <!-- ▼▼▼ EDIT BELOW THIS LINE DAILY ▼▼▼ -->
+            <div class="editorial-kicker">Daily Commentary · March 29, 2026</div>
+            <h3 class="editorial-title">Gold is the Cheese Bread from the Sky</h3>
+            <p class="editorial-text">
+              Gold continues to defy gravity as global uncertainty keeps safe-haven demand firmly elevated.
+              With central banks loading up and inflation refusing to fully retreat, the metal's journey past
+              $4,500 is not just a number — it's a signal. Investors who dismissed gold at $2,000 are
+              now watching from the sidelines as the narrative rewrites itself in real time.
+            </p>
+            <p class="editorial-text">
+              Whether you're hedging against currency debasement or simply preserving generational wealth,
+              the case for gold in 2026 has never been more compelling. Stay informed. Stay golden.
+            </p>
+            <div class="editorial-byline">By the NewsOnGold Editorial Team</div>
+            <!-- ▲▲▲ EDIT ABOVE THIS LINE DAILY ▲▲▲ -->
+          </div>
+          <div class="editorial-img-wrap">
+            <!-- ▼ Change this image src to any relevant gold/finance photo ▼ -->
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Gold_bullion_bars.jpg/640px-Gold_bullion_bars.jpg"
+                 alt="Gold bars editorial"
+                 onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Gold_Bars.jpg/640px-Gold_Bars.jpg'">
+            <div class="editorial-img-overlay"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           LATEST NEWS HEADLINES (live from Guardian API)
+      ══════════════════════════════════════════ -->
+      <div class="widget">
+        <div class="widget-head">
+          <div class="widget-bar red"></div>
+          <span class="widget-title">Latest News</span>
+          <span class="widget-count" id="ln-count">—</span>
+        </div>
+        <div class="ln-list" id="ln-list">
+          <div class="state-box"><div class="spinner"></div></div>
+        </div>
       </div>
 
       <!-- 3. MOST READ GRID -->
@@ -1312,10 +1481,27 @@ function raItemHTML(a) {
     </a>`;
 }
 
+function renderLatestNews(articles) {
+  const el = document.getElementById('ln-list');
+  const ct = document.getElementById('ln-count');
+  if (!el) return;
+  const items = articles.slice(0, 7);
+  el.innerHTML = items.map(a => `
+    <a href="${esc(a.url)}" target="_blank" rel="noopener" class="ln-item">
+      <span class="ln-bullet">•</span>
+      <span class="ln-headline">${esc(a.title)}</span>
+      <span class="ln-meta">${esc(a.source?.name||'')}</span>
+      <span class="ln-time">${fmtDate(a.publishedAt)}</span>
+    </a>`).join('');
+  if (ct) ct.textContent = items.length + ' headlines';
+}
+
 function renderAllArticles() {
   if(!S.articles.length) return;
   // Featured = most recent
   renderFeatured(S.articles[0]);
+  // Latest News headlines
+  renderLatestNews(S.articles);
   // Most Read grid = top 6 by read count
   const byReads=[...S.articles].sort((a,b)=>(S.readCounts[b.url]||0)-(S.readCounts[a.url]||0)).slice(0,6);
   document.getElementById('mr-grid').innerHTML=byReads.map(mrCardHTML).join('');
